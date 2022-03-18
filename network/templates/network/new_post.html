@@ -1,0 +1,23 @@
+{% extends "network/layout.html" %} {% block body %}
+<form action="{% url 'new_post' %}" method="post">
+	{% csrf_token %}
+	<div class="form-group">
+		<input
+			class="form-control"
+			autofocus
+			type="text"
+			name="title"
+			placeholder="Title"
+		/>
+	</div>
+	<div class="form-group">
+		<textarea
+			class="form-control"
+			rows="5"
+			name="content"
+			placeholder="Post content"
+		></textarea>
+	</div>
+	<input class="btn btn-primary" type="submit" value="Register" />
+</form>
+{% endblock %}
