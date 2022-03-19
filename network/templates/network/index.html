@@ -1,4 +1,17 @@
 {% extends "network/layout.html" %} {% block body %}
-<a class="btn btn-primary" href="{% url 'new_post' %}">New Post</a>
-<div class="container"></div>
+<div class="container">
+	<a class="btn btn-primary mb-3" href="{% url 'new_post' %}">New Post</a>
+	{% for post in posts %}
+	<div class="border rounded p-4 mb-4">
+		<h3>{{post.title}}</h3>
+
+		<div>{{post.content}}</div>
+		<div class="text-muted">{{post.created_at}}</div>
+		<div>❤️ {{post.likes}}</div>
+		<div class="text-muted">
+			by <span class="badge badge-light">{{post.user.username}}</span>
+		</div>
+	</div>
+	{% endfor %}
+</div>
 {% endblock %}

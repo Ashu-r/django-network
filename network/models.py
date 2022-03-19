@@ -3,7 +3,9 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    username = models.CharField(max_length=30, unique=True, primary_key=True)
+    following = models.ManyToManyField(
+        'self', related_name='followers', symmetrical=False)
 
 
 class Post(models.Model):
@@ -14,6 +16,9 @@ class Post(models.Model):
     likes = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.title

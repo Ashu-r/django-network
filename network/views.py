@@ -1,14 +1,17 @@
+import json
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.http import JsonResponse
 
 from .models import User, Post, Comment
 
 
 def index(request):
-    return render(request, "network/index.html")
+    return render(request, "network/index.html", {'posts': Post.objects.all()})
 
 
 def login_view(request):
@@ -74,3 +77,32 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+
+def user(request, username):
+    user = User.objects.get(username=username)
+    isFollowing = False
+    if request.user.following.filter(username=username).exists():
+        isFollowing = True
+    return render(request, "network/user.html", {
+        "username": username,
+        "posts": Post.objects.filter(user=user),
+        "following": user.following.all(),
+        "followers": user.followers.all(),
+        "isFollowing": isFollowing
+    })
+
+
+@login_required
+def follow(request, username):
+    user = User.objects.get(username=username)
+    print(request.method)
+    if request.method == "POST":
+        if request.user.following.filter(username=username).exists():
+            request.user.following.remove(user)
+        else:
+            request.user.following.add(user)
+        print(request.user.following.all())
+        return HttpResponseRedirect(reverse("user", args=(username,)))
+    else:
+        return HttpResponseRedirect(reverse("user", args=(username,)))
