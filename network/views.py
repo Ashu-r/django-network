@@ -1,3 +1,4 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -6,6 +7,8 @@ from django.shortcuts import render
 from django.urls import reverse
 from .models import User, Post, Comment
 from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 def index(request):
@@ -116,3 +119,21 @@ def follow(request, username):
 def following(request):
     posts = Post.objects.filter(user__in=request.user.following.all())
     return render(request, "network/index.html", {'posts': posts})
+
+
+@csrf_exempt
+@login_required
+def edit(request, id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    data = json.loads(request.body)
+    post = Post.objects.get(id=id)
+    if post.user != request.user:
+        return JsonResponse({"error": "You do not have permission to edit this post."}, status=403)
+
+    post.content = data["content"]
+    post.save()
+    return JsonResponse({"success": "Post updated successfully.",
+                         "content": post.content,
+                         }, status=200)
