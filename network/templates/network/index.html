@@ -4,16 +4,24 @@
 	{% for post in posts %}
 	<div class="border rounded p-4 mb-4 post">
 		<h3>{{post.title}}</h3>
-		{% if user.username == post.user.username %}
+		{% if user.username == post.user %}
 		<button class="btn btn-sm btn-primary edit" data-id="{{post.id}}">
 			Edit
 		</button>
 		{% endif %}
 		<div class="content">{{post.content}}</div>
 		<div class="text-muted">{{post.created_at}}</div>
-		<div>❤️ {{post.likes}}</div>
+		<div>
+			{% if user.is_authenticated %}<button
+				class="like mr-2 btn btn-sm btn-info"
+				data-id="{{post.id}}"
+			>
+				{% if post.isLiked %}Unlike{% else %}Like{% endif %}</button
+			>{% endif %} ❤️
+			<span class="likesCount"> {{post.likes|length}} </span>
+		</div>
 		<div class="text-muted">
-			by <span class="badge badge-light">{{post.user.username}}</span>
+			by <span class="badge badge-light">{{post.user}}</span>
 		</div>
 	</div>
 	{% endfor %}

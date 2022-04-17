@@ -6,6 +6,7 @@ class User(AbstractUser):
     username = models.CharField(max_length=30, unique=True, primary_key=True)
     following = models.ManyToManyField(
         'self', related_name='followers', symmetrical=False)
+    likes = models.ManyToManyField('Post', related_name='likes')
 
 
 class Post(models.Model):
@@ -13,7 +14,6 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     content = models.TextField()
-    likes = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -9,6 +9,7 @@ from .models import User, Post, Comment
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.forms.models import model_to_dict
 
 
 def index(request):
@@ -18,7 +19,16 @@ def index(request):
     pageRange = paginator.page_range
     hasPrevious = paginator.page(page).has_previous()
     hasNext = paginator.page(page).has_next()
-    return render(request, "network/index.html", {'posts': posts, 'page': int(page), 'hasPrevious': hasPrevious, 'hasNext': hasNext, 'pageRange': pageRange})
+    postsNew = []
+    for p in posts:
+        postsNew.append({**model_to_dict(p), "likes": p.likes.all(),
+                        "isLiked": p.likes.filter(username=request.user.username).exists()})
+    if request.user.is_authenticated:
+        currentUser = {**model_to_dict(request.user)}
+    else:
+        currentUser = None
+    print(postsNew)
+    return render(request, "network/index.html", {'posts': postsNew, 'page': int(page), 'hasPrevious': hasPrevious, 'hasNext': hasNext, 'pageRange': pageRange, 'currentUser': currentUser})
 
 
 def login_view(request):
@@ -137,3 +147,23 @@ def edit(request, id):
     return JsonResponse({"success": "Post updated successfully.",
                          "content": post.content,
                          }, status=200)
+
+
+@csrf_exempt
+@login_required
+def like(request, id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    post = Post.objects.get(id=id)
+    if post.likes.filter(username=request.user.username).exists():
+        post.likes.remove(request.user)
+        post.save()
+        return JsonResponse({"success": "Post unliked successfully.", "action": "like", "likes": post.likes.count()}, status=200)
+    else:
+        post.likes.add(request.user)
+        post.save()
+        return JsonResponse({"success": "Post liked successfully.",
+                             "action": "unlike",
+                             "likes": post.likes.count(),
+                             }, status=200)
