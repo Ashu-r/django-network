@@ -56,6 +56,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse("index"))
 
 
+@login_required
 def new_post(request):
     if request.method == "POST":
         user = request.user
