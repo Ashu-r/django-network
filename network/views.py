@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
+from django.utils import timezone
 
 
 def index(request):
@@ -27,7 +28,7 @@ def index(request):
         currentUser = {**model_to_dict(request.user)}
     else:
         currentUser = None
-    print(postsNew)
+    # print(postsNew)
     return render(request, "network/index.html", {'posts': postsNew, 'page': int(page), 'hasPrevious': hasPrevious, 'hasNext': hasNext, 'pageRange': pageRange, 'currentUser': currentUser})
 
 
