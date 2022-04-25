@@ -35,7 +35,7 @@
 			by <span class="badge badge-light">{{post.user}}</span>
 		</div>
 	</div>
-	{% endfor %}
+	{% endfor %} {% if posts|length %}
 	<nav aria-label="Page navigation mt-4">
 		<ul class="pagination">
 			<li class="page-item {% if not hasPrevious %} disabled{% endif %}">
@@ -55,6 +55,7 @@
 			</li>
 		</ul>
 	</nav>
+	{% endif %}
 </div>
 {% endblock %} {% block script%}
 <script src="{% static 'network/index.js' %}"></script>

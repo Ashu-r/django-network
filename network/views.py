@@ -142,8 +142,23 @@ def follow(request, username):
 
 @login_required
 def following(request):
-    posts = Post.objects.filter(user__in=request.user.following.all())
-    return render(request, "network/index.html", {'posts': posts})
+    page = request.GET.get('page', 1)
+    paginator = Paginator(Post.objects.filter(
+        user__in=request.user.following.all()), 10)
+    posts = paginator.page(page).object_list
+    pageRange = paginator.page_range
+    hasPrevious = paginator.page(page).has_previous()
+    hasNext = paginator.page(page).has_next()
+    postsNew = []
+    for p in posts:
+        postsNew.append({**model_to_dict(p), "likes": p.likes.all(),
+                        "isLiked": p.likes.filter(username=request.user.username).exists()})
+    if request.user.is_authenticated:
+        currentUser = {**model_to_dict(request.user)}
+    else:
+        currentUser = None
+    # print(postsNew)
+    return render(request, "network/index.html", {'posts': postsNew, 'page': int(page), 'hasPrevious': hasPrevious, 'hasNext': hasNext, 'pageRange': pageRange, 'currentUser': currentUser})
 
 
 @csrf_exempt
