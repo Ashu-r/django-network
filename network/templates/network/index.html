@@ -22,7 +22,10 @@
 			<span class="likesCount"> {{post.likes|length}} </span>
 		</div>
 		<div class="text-muted">
-			by <span class="badge badge-light">{{post.user}}</span>
+			by
+			<span class="badge badge-light"
+				><a href="{% url 'user' post.user %}">{{ post.user }}</a></span
+			>
 		</div>
 	</div>
 	{% endfor %} {% if posts|length %}
